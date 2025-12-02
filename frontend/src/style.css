@@ -1,0 +1,10 @@
+/* src/App.vue hoặc global css */
+body,
+* {
+  font-family: "Inter", sans-serif;
+  font-feature-settings: "cv11", "ss01"; 
+}
+section,
+header {
+  background-color: #f3fff3;
+}
