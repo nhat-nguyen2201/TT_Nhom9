@@ -1,15 +1,13 @@
 <template>
   <div>
-    <TheHeader />
+
     <TheHeroSection />
-    <RoomRecommendation />
-    <TheFooter />
+    <postList />
+
   </div>
 </template>
 
 <script setup>
-import TheHeader from "@/components/layout/TheHeader.vue";
 import TheHeroSection from "@/components/layout/TheHeroSection.vue";
-import RoomRecommendation from "@/components/layout/RoomRecommendation.vue";
-import TheFooter from "@/components/layout/TheFooter.vue";
+import postList from "@/views/room/postList.vue";
 </script>

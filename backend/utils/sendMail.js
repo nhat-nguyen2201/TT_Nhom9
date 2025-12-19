@@ -1,6 +1,6 @@
-// utils/sendMail.js   
+// utils/sendMail.js
 require("dotenv").config();
-const nodemailer = require("nodemailer"); 
+const nodemailer = require("nodemailer");
 
 // Tạo transporter
 const transporter = nodemailer.createTransport({

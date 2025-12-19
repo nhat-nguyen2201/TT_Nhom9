@@ -1,12 +1,12 @@
 // controllers/auth/forgotPasswordController.js
 const crypto = require("crypto");
 const db = require("../../config/db");
-const { sendResetPasswordEmail } = require("../../utils/sendMail"); 
+const { sendResetPasswordEmail } = require("../../utils/sendMail");
 
 const forgotPassword = async (req, res) => {
   const { email } = req.body;
 
-  // Validate email 
+  // Validate email
   if (!email || !email.includes("@")) {
     return res.status(400).json({
       status: "error",
@@ -15,13 +15,11 @@ const forgotPassword = async (req, res) => {
   }
 
   try {
- 
     const [users] = await db.query(
-      `SELECT * FROM users WHERE email = ? LIMIT 1`,
+      `SELECT user_id, email, full_name FROM users WHERE email = ? LIMIT 1`,
       [email]
     );
 
-  
     if (!users.length) {
       return res.json({
         status: "success",
@@ -40,21 +38,21 @@ const forgotPassword = async (req, res) => {
     await db.query(
       `UPDATE users 
        SET reset_password_token = ?, reset_password_expires = ? 
-       WHERE id = ?`,
-      [token, expires, user.id]
+       WHERE user_id = ?`,
+      [token, expires, user.user_id]
     );
 
     // Link đặt lại
     const resetLink = `http://localhost:5173/reset-password?token=${token}`;
 
-    // GỬI EMAIL THẬT 
+    // GỬI EMAIL THẬT
     await sendResetPasswordEmail(
       user.email,
       resetLink,
       user.full_name || "bạn"
     );
 
-    // In ra console để test nhanh 
+    // In ra console để test nhanh
     console.log("LINK ĐẶT LẠI MẬT KHẨU:");
     console.log(resetLink);
     console.log("".padStart(60, "-"));

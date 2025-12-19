@@ -5,24 +5,29 @@ const jwt = require("jsonwebtoken");
 require("dotenv").config();
 
 const register = async (req, res) => {
-  const { full_name, email, phone, password, confirm_password } = req.body;
+  const { full_name, email, phone, password, confirm_password, role } =
+    req.body;
 
- 
-  console.log("Request đăng ký nhận được:", req.body);
+  console.log("Request đăng ký:", req.body);
 
- 
-  const finalEmail =
-    email && email.trim() !== "" ? email.trim().toLowerCase() : null;
-  const finalPhone =
-    phone && phone.toString().trim() !== "" && phone !== "null"
-      ? phone.trim()
-      : null;
+  // Chuẩn hóa dữ liệu
+  const finalFullName = full_name?.trim();
+  const finalEmail = email?.trim().toLowerCase();
+  const finalPhone = phone?.toString().trim() || null; // có cũng được, không có cũng được
+  const userRole = role === "landlord" || role === "admin" ? role : "renter";
 
-  // Validation
-  if (!full_name || !full_name.trim()) {
+  // === VALIDATION ===
+  if (!finalFullName || finalFullName.length < 2) {
     return res.status(400).json({
       status: "error",
       message: "Vui lòng nhập họ và tên!",
+    });
+  }
+
+  if (!finalEmail || !/^\S+@\S+\.\S+$/.test(finalEmail)) {
+    return res.status(400).json({
+      status: "error",
+      message: "Email không hợp lệ!",
     });
   }
 
@@ -40,76 +45,72 @@ const register = async (req, res) => {
     });
   }
 
-  if (!finalEmail && !finalPhone) {
-    return res.status(400).json({
-      status: "error",
-      message: "Vui lòng cung cấp email hoặc số điện thoại!",
-    });
-  }
-
   try {
-    // Kiểm tra trùng
-    let query = "SELECT id FROM users WHERE ";
-    let params = [];
-    if (finalEmail && finalPhone) {
-      query += "email = ? OR phone = ?";
-      params = [finalEmail, finalPhone];
-    } else if (finalEmail) {
-      query += "email = ?";
-      params = [finalEmail];
-    } else {
-      query += "phone = ?";
-      params = [finalPhone];
-    }
+    // Kiểm tra email đã tồn tại chưa
+    const [existingEmail] = await db.execute(
+      "SELECT user_id FROM users WHERE email = ?",
+      [finalEmail]
+    );
 
-    const [existingUser] = await db.execute(query, params);
-    if (existingUser.length > 0) {
+    if (existingEmail.length > 0) {
       return res.status(400).json({
         status: "error",
-        message: "Email hoặc số điện thoại đã được sử dụng!",
+        message: "Email này đã được sử dụng!",
       });
     }
 
-    // Hash password
+    // Nếu có nhập phone → kiểm tra trùng phone luôn (tránh 2 tài khoản cùng số điện thoại)
+    if (finalPhone) {
+      const [existingPhone] = await db.execute(
+        "SELECT user_id FROM users WHERE phone = ?",
+        [finalPhone]
+      );
+      if (existingPhone.length > 0) {
+        return res.status(400).json({
+          status: "error",
+          message: "Số điện thoại này đã được sử dụng bởi tài khoản khác!",
+        });
+      }
+    }
+
+    // Hash mật khẩu
     const password_hash = await bcrypt.hash(password, 10);
 
-    // Insert user
+    // Thêm người dùng mới
     const [result] = await db.execute(
-      `INSERT INTO users (full_name, email, phone, password_hash, role, created_at) 
-       VALUES (?, ?, ?, ?, 'tenant', NOW())`,
-      [full_name.trim(), finalEmail, finalPhone, password_hash]
+      `INSERT INTO users 
+         (full_name, email, phone, password_hash, role, created_at, updated_at) 
+       VALUES 
+         (?, ?, ?, ?, ?, NOW(), NOW())`,
+      [finalFullName, finalEmail, finalPhone, password_hash, userRole]
     );
 
     const newUserId = result.insertId;
 
     // Tạo token
     const token = jwt.sign(
-      { id: newUserId, full_name: full_name.trim(), role: "tenant" },
+      { user_id: newUserId, role: userRole, email: finalEmail },
       process.env.JWT_SECRET,
       { expiresIn: "7d" }
     );
 
-    const safeUser = {
-      id: newUserId,
-      full_name: full_name.trim(),
-      email: finalEmail,
-      phone: finalPhone,
-      role: "tenant",
-    };
-
-    console.log("Đăng ký thành công user ID:", newUserId);
-
     return res.status(201).json({
       status: "success",
-      message: "Đăng ký thành công! Đã đăng nhập tự động",
+      message: "Đăng ký thành công! Chào mừng bạn đến TroTot",
       token,
-      user: safeUser,
+      user: {
+        user_id: newUserId,
+        full_name: finalFullName,
+        email: finalEmail,
+        phone: finalPhone,
+        role: userRole,
+      },
     });
   } catch (err) {
     console.error("Lỗi đăng ký:", err);
     return res.status(500).json({
       status: "error",
-      message: "Lỗi máy chủ, vui lòng thử lại sau",
+      message: "Lỗi hệ thống, vui lòng thử lại sau!",
     });
   }
 };

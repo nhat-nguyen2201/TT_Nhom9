@@ -15,7 +15,7 @@
               type="text"
               class="form-control form-control-lg rounded-pill"
               placeholder="Email hoặc Số điện thoại"
-              v-model.trim="form.phone_email"
+              v-model.trim="form.email"
               required
               :disabled="isLoading"
               autocomplete="username"
@@ -93,7 +93,7 @@ export default {
   data() {
     return {
       form: {
-        phone_email: "",
+        email: "",
         password: "",
       },
       showPass: false,
@@ -119,7 +119,7 @@ export default {
     },
 
     async handleLogin() {
-      if (!this.form.phone_email || !this.form.password) {
+      if (!this.form.email) {
         this.showToast("Vui lòng điền đầy đủ thông tin!", "danger");
         return;
       }
@@ -128,7 +128,7 @@ export default {
 
       try {
         const res = await axios.post("http://localhost:5000/api/login", {
-          phone_email: this.form.phone_email.trim(),
+          email: this.form.email.trim(),
           password: this.form.password,
         });
 
@@ -140,12 +140,13 @@ export default {
             ...user,
             role: (user.role || "tenant").toString().trim().toLowerCase(),
           };
-       
-          localStorage.setItem("token", token);
-          localStorage.setItem("user", JSON.stringify(normalizedUser));       
 
+          localStorage.setItem("token", token);
+          localStorage.setItem("user", JSON.stringify(normalizedUser));
+
+          window.dispatchEvent(new Event("storage"));
           this.showToast("Đăng nhập thành công!", "success");
-          
+
           setTimeout(() => {
             if (normalizedUser.role === "admin") {
               this.router.replace("/admin/dashboard");

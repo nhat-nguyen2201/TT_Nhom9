@@ -14,49 +14,6 @@
             với hơn <strong>500 tin đăng mới</strong> và
             <strong>30.000 lượt xem mỗi ngày</strong>
           </p>
-
-          <!-- 3 ô chọn dạng thẻ trắng bo góc -->
-          <div
-            class="bg-white rounded-4 shadow-sm p-4 d-flex flex-column flex-md-row gap-3 align-items-center"
-          >
-            <!-- Vị trí -->
-            <div class="flex-fill">
-              <label class="form-label text-muted mb-1">Vị trí</label>
-              <select
-                class="form-select form-select-lg rounded-pill border-0 shadow-sm"
-              >
-                <option>TP Hồ Chí Minh</option>
-                <option>Hà Nội</option>
-                <option>Đà Nẵng</option>
-                <option>Cần Thơ</option>
-              </select>
-            </div>
-
-            <!-- Lo1½ Loại -->
-            <div class="flex-fill ">
-              <label class="form-label text-muted mb-1">Loại</label>
-              <select
-                class="form-select form-select-lg rounded-pill border-0 shadow-sm "
-              >
-                <option>Phòng trọ</option>
-                <option>Chung cư mini</option>
-                <option>Nhà nguyên căn</option>
-              </select>
-            </div>
-
-            <!-- Mức giá -->
-            <div class="flex-fill">
-              <label class="form-label text-muted mb-1">Mức giá</label>
-              <select
-                class="form-select form-select-lg rounded-pill border-0 shadow-sm"
-              >
-                <option>1 - 2 triệu</option>
-                <option>2 - 3 triệu</option>
-                <option>3 - 5 triệu</option>
-                <option>Trên 5 triệu</option>
-              </select>
-            </div>
-          </div>
         </div>
 
         <!-- Cột phải: Ảnh nhà -->

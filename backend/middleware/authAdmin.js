@@ -15,6 +15,7 @@ const authAdmin = async (req, res, next) => {
     const decoded = jwt.verify(
       token,
       process.env.JWT_SECRET || "fallback_secret"
+      
     );
 
     // GÁN USER VÀO REQ – DÒNG NÀY BẮT BUỘC PHẢI CÓ!!!

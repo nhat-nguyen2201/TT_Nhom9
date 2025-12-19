@@ -54,7 +54,7 @@
                   :class="{
                     'bg-success': user.role === 'admin',
                     'bg-info': user.role === 'landlord',
-                    'bg-secondary': user.role === 'tenant',
+                    'bg-secondary': user.role === 'renter',
                   }"
                 >
                   {{ user.role.toUpperCase() }}

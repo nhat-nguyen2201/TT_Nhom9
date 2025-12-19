@@ -26,7 +26,7 @@
             <input
               type="text"
               class="form-control form-control-lg rounded-pill"
-              placeholder="Email hoặc Số điện thoại"
+              placeholder="Nhập Email để đăng ký"
               v-model.trim="form.phone_email"
               maxlength="100"
               required

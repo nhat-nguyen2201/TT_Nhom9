@@ -4,7 +4,7 @@ const db = require("../../config/db");
 const getUsers = async (req, res) => {
   try {
     const [users] = await db.execute(`
-      SELECT id, full_name, email, phone, role, is_verified AS is_blocked, created_at 
+      SELECT user_id, full_name, email, phone, role, created_at 
       FROM users ORDER BY created_at DESC
     `);
     res.json(users);
@@ -16,7 +16,7 @@ const getUsers = async (req, res) => {
 
 const blockUser = async (req, res) => {
   const { id } = req.params;
-  const { is_blocked } = req.body; // true = khóa, false = mở
+  const { is_blocked } = req.body; 
 
   try {
     await db.execute("UPDATE users SET is_blocked = ? WHERE id = ?", [
