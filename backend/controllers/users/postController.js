@@ -100,7 +100,7 @@ const validatePostData = (data) => {
   return errors;
 };
 
-// ================== GEOCODE ĐƠN GIẢN VỚI GOONG.IO (ĐÃ SỬA TRÙNG LẶP) ==================
+// ================== GEOCODE  ==================
 const getCoordinatesFromGoong = async (address, ward, district, city) => {
   try {
     let fullAddress = address.trim(); // Ưu tiên dùng address từ frontend (đã full)
@@ -176,7 +176,7 @@ const deleteUploadedImages = async (imagePaths) => {
   }
 };
 
-// ================== CREATE POST (TỐI ƯU VỚI GOONG.IO) ==================
+// ================== CREATE POST ==================
 const createPost = async (req, res) => {
   let connection;
   const uploadedImages = [];
@@ -266,7 +266,7 @@ const createPost = async (req, res) => {
       "-" +
       Date.now();
     const expired_at = new Date();
-    expired_at.setDate(expired_at.getDate() + 30);
+    expired_at.setDate(expired_at.getDate() + 3);
 
     // 5. Insert bài đăng
     const [postResult] = await connection.execute(
@@ -274,7 +274,7 @@ const createPost = async (req, res) => {
       (landlord_id, package_id, title, slug, description, contact_phone, contact_zalo,
        price, deposit, area, address, ward, district, city, latitude, longitude,
        room_type, status, expired_at, created_at, updated_at)
-      VALUES (?, 1, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?, NOW(), NOW())`,
+      VALUES (?, 1, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', ?, NOW(), NOW())`,
       [
         landlord_id,
         title.trim(),
@@ -336,7 +336,7 @@ const createPost = async (req, res) => {
 
     return res.status(201).json({
       success: true,
-      message: "Đăng tin thành công! Tin đang chờ duyệt.",
+      message: "Đăng tin thành công! Tin đã được đăng.",
       data: {
         post_id,
         slug,
@@ -366,4 +366,10 @@ const createPost = async (req, res) => {
   }
 };
 
-module.exports = { createPost, getSuggestedPosts };
+module.exports = {
+  createPost,
+  getSuggestedPosts,
+  validatePostData,
+  getCoordinatesFromGoong,
+  deleteUploadedImages,
+};

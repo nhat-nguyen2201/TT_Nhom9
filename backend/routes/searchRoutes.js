@@ -3,7 +3,7 @@
 const express = require("express");
 const router = express.Router();
 
-const searchController = require("../controllers/post/searchController");
+const searchController = require("../controllers/users/searchController");
 
 // BẮT BUỘC PHẢI CÓ DẤU / TRƯỚC search
 router.get("/advanced", searchController.advancedSearch);

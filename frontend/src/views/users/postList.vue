@@ -197,7 +197,6 @@ const getBadgeClass = (type) => {
   return "bg-secondary text-white";
 };
 
-// Xử lý ảnh lỗi (Fallback image)
 const handleImageError = (e) => {
   e.target.src = "https://via.placeholder.com/400x300.png?text=Ảnh+lỗi";
 };
@@ -206,7 +205,7 @@ const handleImageError = (e) => {
 const applyPriceRange = () => {
   if (!selectedPriceRange.value) {
     filters.value.min_price = 0;
-    filters.value.max_price = 999999999;
+    filters.value.max_price = 100000000;
   } else {
     const [min, max] = selectedPriceRange.value.split("-").map(Number);
     filters.value.min_price = min;
@@ -226,13 +225,10 @@ const fetchFilterOptions = async () => {
 };
 // Thêm hàm này vào trong <script setup>
 const getImageUrl = (post) => {
-  // Trường hợp 1: Dữ liệu là mảng (Array) chuẩn
   if (Array.isArray(post.images) && post.images.length > 0) {
     return post.images[0];
   }
 
-  // Trường hợp 2: Dữ liệu là chuỗi JSON (do MySQL trả về chưa parse)
-  // Ví dụ: "[\"http://...\", \"http://...\"]"
   if (typeof post.images === "string" && post.images.startsWith("[")) {
     try {
       const parsed = JSON.parse(post.images);
@@ -242,10 +238,8 @@ const getImageUrl = (post) => {
     }
   }
 
-  // Trường hợp 3: Backend trả về field tên là "image" (số ít) thay vì "images"
   if (post.image) return post.image;
 
-  // Trường hợp 4: Không có ảnh nào -> Trả về null để dùng ảnh placeholder
   return null;
 };
 const fetchPosts = async () => {
@@ -280,7 +274,7 @@ onMounted(() => {
 <style scoped>
 /* Container nền */
 .bg-light-subtle {
-  background-color: #f8f9fa; 
+  background-color: #f8f9fa;
 }
 
 /* Card Styling */

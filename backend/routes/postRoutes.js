@@ -1,24 +1,26 @@
-// src/routes/postRoutes.js
 const express = require("express");
 const router = express.Router();
 
-// Controllers
 const {
   createPost,
   getSuggestedPosts,
-} = require("../controllers/post/postController");
+} = require("../controllers/users/postController");
 
-// Middleware
 const upload = require("../utils/upLoadImage");
 const auth = require("../middleware/authMiddleware");
 
-// Tạo bài đăng
-router.post("/create", auth, upload, createPost);
+// CREATE POST
+router.post(
+  "/create",
+  auth,
+  upload.array("images", 10),
+  createPost
+);
 
-// Lấy gợi ý tin đăng - ĐÃ SỬA: /suggested (không có -posts)
+// GET SUGGESTED POSTS
 router.get("/suggested", getSuggestedPosts);
 
-// Lấy danh sách tiện ích
+// GET AMENITIES
 router.get("/amenities", async (req, res) => {
   try {
     const db = require("../config/db");

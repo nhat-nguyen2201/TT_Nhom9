@@ -8,9 +8,7 @@ const getStats = async (req, res) => {
     const [pending] = await db.execute(
       "SELECT COUNT(*) as count FROM posts WHERE status = 'pending'"
     );
-    const [reported] = await db.execute(
-      "SELECT COUNT(*) as count FROM posts WHERE reported = 1"
-    );
+    const reported = 0;
 
     res.json({
       totalUsers: users[0].count,

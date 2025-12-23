@@ -8,8 +8,8 @@
           <div
             class="d-flex align-items-center justify-content-center justify-content-lg-start"
           >
-            <router-link
-              to="/"
+            <a
+              href="/"
               class="d-flex align-items-center gap-2 text-decoration-none logo-brand"
             >
               <div
@@ -19,7 +19,7 @@
                 <i class="bi bi-house-heart-fill text-white fs-4"></i>
               </div>
               <h1 class="mb-0 fs-3 fw-bold text-info">ThueTro</h1>
-            </router-link>
+            </a>
           </div>
         </div>
 
@@ -163,6 +163,7 @@
     </div>
   </header>
 </template>
+
 <script setup>
 import { ref, onMounted, onUnmounted, nextTick } from "vue";
 import { useRouter } from "vue-router";
@@ -230,14 +231,6 @@ const hideSuggestions = (e) => {
     showSuggestions.value = false;
   }
 };
-
-// === CITIES ===
-const cities = ref([
-  { id: 1, full: "Thành Phố Hồ Chí Minh", short: "TP HCM" },
-  { id: 2, full: "Thành Phố Hà Nội", short: "Hà Nội" },
-  { id: 3, full: "Thành Phố Đà Nẵng", short: "Đà Nẵng" },
-  { id: 4, full: "Thành Phố Cần Thơ", short: "Cần Thơ" },
-]);
 
 const selectedCity = ref("TP Hồ Chí Minh");
 const selectedCityShort = ref("TP HCM");
@@ -320,7 +313,7 @@ const logout = () => {
 .suggestion-item:hover {
   background-color: #f8f9fa !important;
 }
-<style scoped > .logo-brand {
+.logo-brand {
   transition: all 0.3s ease;
   cursor: pointer;
 }

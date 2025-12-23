@@ -11,68 +11,173 @@
       </div>
       <nav class="flex-grow-1 p-3">
         <ul class="nav flex-column gap-2">
-          <!-- Thay toàn bộ 5 dòng này trong sidebar -->
           <li>
             <router-link
               to="/admin/dashboard"
               active-class="bg-white text-danger"
-              class="nav-link text-white rounded px-3 py-2"
+              class="nav-link text-white rounded px-3 py-2 d-flex align-items-center"
             >
-              Dashboard
+              <i class="bi bi-speedometer2 me-2"></i> Dashboard
             </router-link>
           </li>
           <li>
             <router-link
               to="/admin/users"
               active-class="bg-white text-danger"
-              class="nav-link text-white rounded px-3 py-2"
+              class="nav-link text-white rounded px-3 py-2 d-flex align-items-center"
             >
-              Quản lý người dùng
+              <i class="bi bi-people me-2"></i> Quản lý người dùng
             </router-link>
           </li>
           <li>
             <router-link
               to="/admin/posts"
               active-class="bg-white text-danger"
-              class="nav-link text-white rounded px-3 py-2"
+              class="nav-link text-white rounded px-3 py-2 d-flex align-items-center"
             >
-              Quản lý tin đăng
-            </router-link>
-          </li>
-          <li>
-            <router-link
-              to="/admin/reports"
-              active-class="bg-white text-danger"
-              class="nav-link text-white rounded px-3 py-2"
-            >
-              Tin bị báo cáo
+              <i class="bi bi-house-door me-2"></i> Quản lý tin đăng
             </router-link>
           </li>
           <li>
             <router-link
               to="/admin/stats"
               active-class="bg-white text-danger"
-              class="nav-link text-white rounded px-3 py-2"
+              class="nav-link text-white rounded px-3 py-2 d-flex align-items-center"
             >
-              Thống kê
+              <i class="bi bi-graph-up me-2"></i> Thống kê
             </router-link>
           </li>
         </ul>
       </nav>
       <div class="p-3 border-top border-light">
         <button @click.prevent="logout" class="btn btn-outline-light w-100">
-          Đăng xuất
+          <i class="bi bi-box-arrow-right me-2"></i> Đăng xuất
         </button>
       </div>
     </div>
 
     <!-- Main Content -->
-    <div class="flex-grow-1">
+    <div class="flex-grow-1 d-flex flex-column">
+      <!-- Header với tiêu đề + nút Tạo tài khoản -->
       <div class="bg-white shadow-sm p-4 mb-4">
-        <h2 class="mb-0">{{ pageTitle }}</h2>
+        <div class="d-flex justify-content-between align-items-center">
+          <h2 class="mb-0 fw-bold">{{ pageTitle }}</h2>
+
+          <!-- NÚT TẠO TÀI KHOẢN MỚI - HIỆN TRÊN MỌI TRANG ADMIN -->
+          <button
+            @click="openCreateUserModal"
+            class="btn btn-success btn-lg shadow-sm d-flex align-items-center"
+          >
+            <i class="bi bi-person-plus-fill me-2"></i>
+            Tạo tài khoản mới
+          </button>
+        </div>
       </div>
-      <div class="container-fluid px-4">
+
+      <!-- Nội dung trang con -->
+      <div class="container-fluid px-4 pb-5 flex-grow-1">
         <router-view />
+      </div>
+    </div>
+
+    <!-- Modal tạo tài khoản (dùng Bootstrap modal) -->
+    <div
+      class="modal fade"
+      id="createUserModal"
+      tabindex="-1"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header bg-success text-white">
+            <h5 class="modal-title">
+              <i class="bi bi-person-plus me-2"></i> Tạo tài khoản mới
+            </h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <form @submit.prevent="submitCreateUser">
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="form-label fw-bold"
+                    >Họ và tên <span class="text-danger">*</span></label
+                  >
+                  <input
+                    v-model="newUser.full_name"
+                    type="text"
+                    class="form-control"
+                    required
+                  />
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label fw-bold"
+                    >Email <span class="text-danger">*</span></label
+                  >
+                  <input
+                    v-model="newUser.email"
+                    type="email"
+                    class="form-control"
+                    required
+                  />
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label fw-bold">Số điện thoại</label>
+                  <input
+                    v-model="newUser.phone"
+                    type="text"
+                    class="form-control"
+                  />
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label fw-bold"
+                    >Mật khẩu <span class="text-danger">*</span></label
+                  >
+                  <input
+                    v-model="newUser.password"
+                    type="password"
+                    class="form-control"
+                    required
+                    minlength="6"
+                  />
+                </div>
+                <div class="col-12">
+                  <label class="form-label fw-bold"
+                    >Vai trò <span class="text-danger">*</span></label
+                  >
+                  <select v-model="newUser.role" class="form-select" required>
+                    <option value="renter">Người thuê (Renter)</option>
+                    <option value="landlord">Chủ trọ (Landlord)</option>
+                    <option value="admin">Quản trị viên (Admin)</option>
+                  </select>
+                </div>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Hủy
+            </button>
+            <button
+              @click="submitCreateUser"
+              class="btn btn-success"
+              :disabled="creating"
+            >
+              <span
+                v-if="creating"
+                class="spinner-border spinner-border-sm me-2"
+              ></span>
+              Tạo tài khoản
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -80,91 +185,96 @@
 
 <script>
 import axios from "axios";
-import { useRouter } from "vue-router"; // THÊM DÒNG NÀY
+import { useRouter } from "vue-router";
+import { ref } from "vue";
 
 export default {
-  // THÊM setup() ĐỂ LẤY ROUTER
   setup() {
     const router = useRouter();
-    return { router };
-  },
 
-  data() {
+    // Dữ liệu cho modal tạo user
+    const createUserModal = ref(null);
+    const newUser = ref({
+      full_name: "",
+      email: "",
+      phone: "",
+      password: "",
+      role: "renter",
+    });
+    const creating = ref(false);
+
+    const openCreateUserModal = () => {
+      // Reset form
+      newUser.value = {
+        full_name: "",
+        email: "",
+        phone: "",
+        password: "",
+        role: "renter",
+      };
+      // Mở modal Bootstrap
+      const modal = new bootstrap.Modal(
+        document.getElementById("createUserModal")
+      );
+      modal.show();
+    };
+
+    const submitCreateUser = async () => {
+      creating.value = true;
+      try {
+        await axios.post("/admin/users", newUser.value);
+        alert("Tạo tài khoản thành công!");
+        // Đóng modal
+        bootstrap.Modal.getInstance(
+          document.getElementById("createUserModal")
+        ).hide();
+      } catch (err) {
+        alert(
+          err.response?.data?.message ||
+            "Lỗi tạo tài khoản. Vui lòng kiểm tra lại!"
+        );
+      } finally {
+        creating.value = false;
+      }
+    };
+
     return {
-      form: { phone_email: "", password: "" },
-      showPass: false,
-      isLoading: false,
+      router,
+      pageTitle: "Admin Panel", // Có thể để child component override
+      openCreateUserModal,
+      newUser,
+      creating,
+      submitCreateUser,
     };
   },
 
   methods: {
-    showToast(message, type = "danger") {
-      const toast = document.createElement("div");
-      toast.className = `alert alert-${
-        type === "success" ? "success" : "danger"
-      } alert-dismissible fade show position-fixed`;
-      toast.style.cssText = `top: 20px; right: 20px; z-index: 9999; min-width: 300px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); border-radius: 12px;`;
-      toast.innerHTML = `
-        <strong>${
-          type === "success" ? "Thành công!" : "Lỗi!"
-        }</strong> ${message}
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-      `;
-      document.getElementById("toast-container").appendChild(toast);
-      setTimeout(() => toast.remove(), 4500);
-    },
     logout() {
       localStorage.removeItem("token");
       localStorage.removeItem("user");
-
-      // Tạo event để đồng bộ logout giữa các tab
       window.dispatchEvent(new Event("storage"));
-
-      this.$router.push("/login");
-    },
-    async handleLogin() {
-      this.isLoading = true;
-
-      try {
-        const res = await axios.post("http://localhost:5000/api/login", {
-          phone_email: this.form.phone_email.trim(),
-          password: this.form.password,
-        });
-
-        if (res.data.status === "success" && res.data.token) {
-          const user = res.data.user;
-          const normalizedUser = {
-            ...user,
-            role: (user.role || "tenant").toString().trim().toLowerCase(),
-          };
-
-          localStorage.setItem("token", res.data.token);
-          localStorage.setItem("user", JSON.stringify(normalizedUser));
-
-          this.showToast("Đăng nhập thành công!", "success");
-
-          // DÙNG this.router (từ setup) THAY VÌ this.$router
-          if (normalizedUser.role === "admin") {
-            this.router.replace("/admin");
-          } else {
-            this.router.replace("/");
-          }
-        }
-      } catch (error) {
-        this.showToast(
-          error.response?.data?.message || "Sai thông tin đăng nhập!",
-          "danger"
-        );
-      } finally {
-        this.isLoading = false;
-      }
+      this.router.push("/login");
     },
   },
 };
 </script>
 
-<style>
+<style scoped>
 .bg-gradient-danger {
   background: linear-gradient(135deg, #dc3545, #c82333) !important;
+}
+
+.nav-link {
+  transition: all 0.3s;
+}
+
+.nav-link:hover,
+.nav-link.active {
+  background-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+.bg-white.text-danger {
+  color: #dc3545 !important;
+  font-weight: 600;
 }
 </style>

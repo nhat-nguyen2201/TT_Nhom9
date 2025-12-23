@@ -33,8 +33,8 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="user in filteredUsers" :key="user.id">
-              <td>{{ user.id }}</td>
+            <tr v-for="user in filteredUsers" :key="user.user_iduser_id">
+              <td>{{ user.user_id }}</td>
               <td>
                 <div class="d-flex align-items-center">
                   <div
@@ -74,7 +74,7 @@
                   @click="toggleBlockUser(user)"
                   class="btn btn-sm"
                   :class="user.is_blocked ? 'btn-success' : 'btn-warning'"
-                  :disabled="loadingId === user.id"
+                  :disabled="loadingId === user.user_id"
                 >
                   <i
                     :class="user.is_blocked ? 'bi bi-unlock' : 'bi bi-lock'"
@@ -110,7 +110,7 @@ const loadingId = ref(null);
 const searchQuery = ref("");
 
 const toast = (msg, type = "success") => {
-  alert(msg); 
+  alert(msg);
 };
 
 // Lấy danh sách người dùng
@@ -134,9 +134,9 @@ const toggleBlockUser = async (user) => {
     return;
   }
 
-  loadingId.value = user.id;
+  loadingId.value = user.user_id;
   try {
-    await axios.patch(`/admin/users/${user.id}/block`, {
+    await axios.patch(`/admin/users/${user.user_id}/block`, {
       is_blocked: !user.is_blocked,
     });
 

@@ -239,7 +239,6 @@ const mapContainer = ref(null);
 // Danh sách tất cả tiện ích
 const allAmenities = ref([]);
 
-// Danh sách tiện ích đã chọn của phòng (sau khi map)
 const roomAmenities = ref([]);
 
 onMounted(async () => {
@@ -247,11 +246,9 @@ onMounted(async () => {
     console.log("Bắt đầu tải dữ liệu...");
 
     const [roomResponse, amenitiesResponse] = await Promise.all([
-      axios.get(`http://localhost:5000/api/posts/${route.params.id}`),
+      axios.get(`http://localhost:5000/api/rooms/${route.params.id}`),
       axios.get("http://localhost:5000/api/posts/amenities"),
     ]);
-
-    console.log("API Room trả về:", roomResponse.data);
 
     const roomData =
       roomResponse.data.room || roomResponse.data.data || roomResponse.data;
@@ -261,22 +258,13 @@ onMounted(async () => {
     }
     room.value = roomData;
 
-    // --- 2. XỬ LÝ DANH SÁCH TIỆN ÍCH CHUNG ---
-    console.log("API Amenities trả về:", amenitiesResponse.data);
-    allAmenities.value = amenitiesResponse.data || [];
-
-    // --- 3. XỬ LÝ TIỆN ÍCH CỦA RIÊNG PHÒNG ĐÓ (PHIÊN BẢN SỬA LỖI) ---
-    console.log("room.value.amenities gốc:", room.value.amenities);
-
     if (room.value.amenities) {
       let rawAmenities = room.value.amenities;
       let amenityIds = [];
 
-      // TRƯỜNG HỢP 1: Dữ liệu là chuỗi (String)
       if (typeof rawAmenities === "string") {
         rawAmenities = rawAmenities.trim();
 
-        // Nếu là chuỗi JSON "[1, 2]" hoặc "[1,2,3]"
         if (rawAmenities.startsWith("[")) {
           try {
             amenityIds = JSON.parse(rawAmenities);
@@ -284,41 +272,28 @@ onMounted(async () => {
             console.error("Lỗi parse JSON amenities:", e);
             amenityIds = [];
           }
-        }
-        // Nếu là chuỗi cách nhau dấu phẩy "1,2,3"
-        else if (rawAmenities.includes(",")) {
+        } else if (rawAmenities.includes(",")) {
           amenityIds = rawAmenities
             .split(",")
             .map((item) => parseInt(item.trim()))
             .filter((id) => !isNaN(id));
-        }
-        // Nếu chỉ có 1 số duy nhất "5"
-        else {
+        } else {
           const parsed = parseInt(rawAmenities);
           if (!isNaN(parsed)) {
             amenityIds = [parsed];
           }
         }
-      }
-      // TRƯỜNG HỢP 2: Đã là mảng (Array)
-      else if (Array.isArray(rawAmenities)) {
+      } else if (Array.isArray(rawAmenities)) {
         amenityIds = rawAmenities;
       }
 
-      console.log("amenityIds sau parse:", amenityIds);
-
-      // --- LOGIC MAP DỮ LIỆU ---
-      // Nếu amenityIds chứa toàn Object (backend trả full info)
       if (
         amenityIds.length > 0 &&
         typeof amenityIds[0] === "object" &&
         amenityIds[0] !== null
       ) {
         roomAmenities.value = amenityIds;
-      }
-      // Nếu amenityIds chứa số hoặc chuỗi ID -> Map với allAmenities
-      else if (amenityIds.length > 0) {
-        // Chuyển tất cả ID về number để so sánh chính xác
+      } else if (amenityIds.length > 0) {
         const numericIds = amenityIds
           .map((id) => {
             const num = typeof id === "number" ? id : parseInt(id);
@@ -338,7 +313,6 @@ onMounted(async () => {
 
     loading.value = false;
 
-    // --- 4. KHỞI TẠO BẢN ĐỒ ---
     await nextTick();
     if (mapContainer.value) {
       goongjs.accessToken = "d81lP9VxaJLk7A1TambyZ3bq28QVyGBkYfDdVXz7";
@@ -367,7 +341,6 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-/* Thêm style tùy chỉnh nếu cần */
 .carousel-inner img {
   border-radius: 0.5rem;
 }
@@ -375,7 +348,7 @@ onMounted(async () => {
   border: none;
   padding: 0.5rem 0;
 }
-/* Hiệu ứng hover nhẹ cho box tiện ích */
+
 .hover-shadow {
   transition: box-shadow 0.3s ease;
 }

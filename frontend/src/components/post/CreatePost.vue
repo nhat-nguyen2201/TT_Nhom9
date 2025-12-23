@@ -796,7 +796,7 @@ const submitPost = async () => {
 
   // ĐỊA CHỈ - CHUẨN HÓA ĐÚNG FORMAT
   const addressData = addressForBackend.value;
-  fd.append("address", addressData.address); // Địa chỉ đầy đủ đã ghép chuẩn
+  fd.append("address", form.value.street_address.trim()); 
   fd.append("ward", addressData.ward); // Phường Tân Phú
   fd.append("district", addressData.district); // Quận 7
   fd.append("city", addressData.city); // Thành phố Hồ Chí Minh

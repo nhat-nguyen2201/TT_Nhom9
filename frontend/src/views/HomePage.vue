@@ -9,5 +9,5 @@
 
 <script setup>
 import TheHeroSection from "@/components/layout/TheHeroSection.vue";
-import postList from "@/views/room/postList.vue";
+import postList from "@/views/users/postList.vue";
 </script>

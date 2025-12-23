@@ -1,7 +1,7 @@
-// server.js backened
 const express = require("express");
 require("dotenv").config();
 const cors = require("cors");
+const path = require("path");
 
 const app = express();
 
@@ -11,29 +11,34 @@ app.use(
     credentials: true,
   })
 );
-const path = require("path");
 
 app.use("/uploads", express.static(path.join(__dirname, "public/uploads")));
 
-// BODY PARSER – BẮT BUỘC PHẢI CÓ!
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
-// server.js – phần routes
+// ROUTES
 const postRoutes = require("./routes/postRoutes");
-const adminRoutes = require("./routes/adminRoutes");
 const authRoutes = require("./routes/authRoutes");
 const roomRoutes = require("./routes/roomRoutes");
-const searchRoutes = require("./routes/searchRoutes"); // giữ dòng này
+const searchRoutes = require("./routes/searchRoutes");
+const userRoutes = require("./routes/userRoutes");
+const transactionRoutes = require("./routes/trasactionRoutes");
+const editPostRoutes = require("./routes/editPostRoutes");
+const adminRoutes = require("./routes/adminRoutes");
 
-// Đăng ký với prefix rõ ràng, tránh chồng chéo
-// Đăng ký với prefix rõ ràng, tránh chồng chéo
+// MOUNT ROUTES
 app.use("/api/posts", postRoutes);
-app.use("/api/posts", roomRoutes);
+app.use("/api/rooms", roomRoutes);
 app.use("/api/admin", adminRoutes);
-app.use("/api/", authRoutes);    
-app.use("/api/search", searchRoutes); 
 
+app.use("/api", authRoutes);
+app.use("/api/search", searchRoutes);
+app.use("/api/profile", userRoutes);
+app.use("/api/payment", transactionRoutes);
+app.use("/api/my-posts", editPostRoutes);
+
+// TEST API
 app.get("/", (req, res) => {
   res.json({
     message: "API ThueTro đang chạy ngon lành!",
@@ -43,6 +48,5 @@ app.get("/", (req, res) => {
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  console.log(`Server đang chạy mượt mà trên port ${PORT}`);
-  console.log(`Truy cập: http://localhost:${PORT}`);
+  console.log(`Server đang chạy trên port ${PORT}`);
 });

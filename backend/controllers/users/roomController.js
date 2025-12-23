@@ -6,7 +6,7 @@ const getRoomDetail = async (req, res) => {
 
   try {
     let room;
-    let queryParams = [];
+    //let queryParams = [];
 
     // Kiểm tra xem id có phải là số không → nếu có thì tìm theo post_id
     // Nếu không phải số → tìm theo slug
@@ -118,7 +118,14 @@ const getRoomDetail = async (req, res) => {
             .replace(".0", "")} triệu/tháng`
         : "Thoả thuận",
 
-      full_address: [room[0].address].filter(Boolean).join(", "),
+      full_address: [
+        room[0].address,
+        room[0].ward,
+        room[0].district,
+        room[0].city,
+      ]
+        .filter(Boolean)
+        .join(", "),
     };
 
     res.json({

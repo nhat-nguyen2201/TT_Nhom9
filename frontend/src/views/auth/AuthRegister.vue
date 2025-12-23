@@ -77,6 +77,42 @@
               style="cursor: pointer; z-index: 10"
             ></i>
           </div>
+          <!-- Chọn vai trò -->
+          <div class="mb-4">
+            <label class="form-label fw-bold text-dark d-block mb-2">
+              Bạn là:
+            </label>
+
+            <div class="d-flex gap-4 justify-content-center">
+              <div class="form-check">
+                <input
+                  class="form-check-input"
+                  type="radio"
+                  id="roleTenant"
+                  value="tenant"
+                  v-model="form.role"
+                  :disabled="isLoading"
+                />
+                <label class="form-check-label" for="roleTenant">
+                  Người thuê phòng
+                </label>
+              </div>
+
+              <div class="form-check">
+                <input
+                  class="form-check-input"
+                  type="radio"
+                  id="roleOwner"
+                  value="owner"
+                  v-model="form.role"
+                  :disabled="isLoading"
+                />
+                <label class="form-check-label" for="roleOwner">
+                  Chủ nhà
+                </label>
+              </div>
+            </div>
+          </div>
 
           <!-- Nút Đăng ký + Loading -->
           <button
@@ -122,6 +158,7 @@ export default {
         phone_email: "",
         password: "",
         confirmPassword: "",
+        role: "tenant",
       },
       showPass: false,
       showConfirm: false,
@@ -173,6 +210,10 @@ export default {
         this.showToast("Vui lòng điền đầy đủ thông tin!", "danger");
         return;
       }
+      if (!this.form.role) {
+        this.showToast("Vui lòng chọn vai trò tài khoản!", "danger");
+        return;
+      }
 
       this.isLoading = true;
 
@@ -189,6 +230,7 @@ export default {
               : this.form.phone_email,
             password: this.form.password,
             confirm_password: this.form.password,
+            role: this.form.role,
           }
         );
 

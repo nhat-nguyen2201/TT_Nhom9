@@ -5,17 +5,21 @@ const HomePage = () => import("../views/HomePage.vue");
 const AuthLogin = () => import("../views/auth/AuthLogin.vue");
 const AuthRegister = () => import("../views/auth/AuthRegister.vue");
 const AdminLayout = () => import("../views/admin/AdminLayout.vue");
-const SearchPage = () => import("../views/room/searchPage.vue");
+const SearchPage = () => import("../views/users/searchPage.vue");
 // Các trang admin
 const AdminDashboard = () => import("../views/admin/AdminDashboard.vue");
 const AdminUsers = () => import("../views/admin/UserManagement.vue");
-const AdminPosts = () => import("../views/admin/PostManagement.vue");
-const AdminReports = () => import("../views/admin/ReportedPosts.vue");
+const AdminPosts = () => import("../views/admin/AdminPost.vue");
+
 const AdminStats = () => import("../views/admin/SystemStats.vue");
+// Các trang người dùng
 const ForgotPassword = () => import("../views/auth/ForgotPassword.vue");
 const ResetPassword = () => import("../views/auth/ResetPassword.vue");
-const RoomDetail = () => import("../views/room/RoomDetail.vue");
+const RoomDetail = () => import("../views/users/RoomDetail.vue");
 const CreatePost = () => import("../components/post/CreatePost.vue");
+const profilePage = () => import("../views/users/profilePage.vue");
+const myPost = () => import("../views/users/myPost.vue");
+const EditPost = () => import("../components/post/EditPost.vue");
 const routes = [
   {
     path: "/create-post",
@@ -58,8 +62,34 @@ const routes = [
     name: "ResetPassword",
     component: ResetPassword,
   },
+  {
+    path: "/profile",
+    component: profilePage,
+    children: [
+      {
+        path: ":id",
+        name: "UserProfile",
+        component: profilePage,
+      },
+      {
+        path: "packages",
+        name: "Packages",
+        component: profilePage,
+      },
+    ],
+  },
+  {
+    path: "/my-posts/edit/:id",
+    name: "EditPost",
+    component: EditPost,
+  },
+  {
+    path: "/my-posts",
+    name: "MyPosts",
+    component: myPost,
+  },
 
-  // ADMIN ROUTES – HOÀN CHỈNH 100%
+  // ADMIN ROUTES
   {
     path: "/admin",
     component: AdminLayout,
@@ -77,14 +107,9 @@ const routes = [
         component: AdminUsers,
       },
       {
-        path: "posts",
+        path: "/admin/posts",
         name: "AdminPosts",
         component: AdminPosts,
-      },
-      {
-        path: "reports",
-        name: "AdminReports",
-        component: AdminReports,
       },
       {
         path: "stats",
