@@ -4,7 +4,7 @@ const bcrypt = require("bcryptjs");
 
 const getUsers = async (req, res) => {
   try {
-    // SỬA: Thêm is_blocked vào danh sách lấy về
+   // SỬA: Thêm is_blocked vào danh sách lấy về
     const [users] = await db.execute(`
       SELECT user_id, full_name, email, phone, role, is_blocked, created_at 
       FROM users ORDER BY created_at DESC
@@ -17,17 +17,17 @@ const getUsers = async (req, res) => {
 };
 
 const blockUser = async (req, res) => {
-  const { id } = req.params; // Lấy id từ URL
+  const { id } = req.params;
   const { is_blocked } = req.body;
 
   try {
-    // SỬA: Đổi 'WHERE id' thành 'WHERE user_id'
+   
     const [result] = await db.execute(
       "UPDATE users SET is_blocked = ? WHERE user_id = ?",
       [is_blocked ? 1 : 0, id]
     );
 
-    // Kiểm tra xem có user nào được update không
+    
     if (result.affectedRows === 0) {
       return res.status(404).json({ message: "Không tìm thấy user" });
     }
@@ -43,8 +43,6 @@ const blockUser = async (req, res) => {
 const createUserByAdmin = async (req, res) => {
   const { full_name, email, phone, password, role } = req.body;
 
-  // Admin tạo thì không cần confirm_password (frontend đã xử lý)
-  // Nhưng vẫn validate cơ bản
   if (!full_name || full_name.trim().length < 2) {
     return res.status(400).json({ message: "Họ tên không hợp lệ" });
   }
@@ -55,7 +53,6 @@ const createUserByAdmin = async (req, res) => {
     return res.status(400).json({ message: "Mật khẩu phải ít nhất 6 ký tự" });
   }
 
-  // Admin được phép chọn role bất kỳ (bao gồm admin)
   const validRoles = ["renter", "landlord", "admin"];
   const userRole = validRoles.includes(role) ? role : "renter";
 
@@ -64,7 +61,7 @@ const createUserByAdmin = async (req, res) => {
   const finalPhone = phone?.trim() || null;
 
   try {
-    // Kiểm tra email trùng
+ 
     const [existingEmail] = await db.execute(
       "SELECT user_id FROM users WHERE email = ?",
       [finalEmail]
@@ -73,7 +70,7 @@ const createUserByAdmin = async (req, res) => {
       return res.status(400).json({ message: "Email đã được sử dụng" });
     }
 
-    // Kiểm tra phone trùng (nếu có nhập)
+ 
     if (finalPhone) {
       const [existingPhone] = await db.execute(
         "SELECT user_id FROM users WHERE phone = ?",

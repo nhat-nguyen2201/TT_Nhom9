@@ -1,6 +1,5 @@
 const db = require("../../config/db");
 
-// SỬA: Thay "exports.createPackage" thành "const createPackage"
 const createPackage = async (req, res) => {
   try {
     const {
@@ -51,7 +50,6 @@ const createPackage = async (req, res) => {
   }
 };
 
-// SỬA: Thay "exports." thành "const"
 const getAllPackages = async (req, res) => {
   try {
     const [rows] = await db.execute(`
@@ -82,7 +80,6 @@ const getAllPackages = async (req, res) => {
   }
 };
 
-// SỬA: Thay "exports." thành "const"
 const getPackageById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -107,7 +104,6 @@ const getPackageById = async (req, res) => {
   }
 };
 
-// SỬA: Thay "exports." thành "const"
 const updatePackage = async (req, res) => {
   try {
     const { id } = req.params;
@@ -162,7 +158,6 @@ const updatePackage = async (req, res) => {
   }
 };
 
-// SỬA: Thay "exports." thành "const"
 const deletePackage = async (req, res) => {
   try {
     const { id } = req.params;
@@ -273,7 +268,6 @@ const rejectTransaction = async (req, res) => {
   }
 };
 
-// VÌ ĐÃ DÙNG CONST Ở TRÊN, NÊN ĐOẠN DƯỚI NÀY MỚI HOẠT ĐỘNG ĐƯỢC
 module.exports = {
   createPackage,
   getAllPackages,

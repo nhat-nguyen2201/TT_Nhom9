@@ -6,7 +6,7 @@ const fs = require("fs").promises;
 const path = require("path");
 require("dotenv").config();
 
-// ================== GET SUGGESTED POSTS (giữ nguyên) ==================
+// ================== GET SUGGESTED POSTS ==================
 const getSuggestedPosts = async (req, res) => {
   const { type, limit = 12 } = req.query;
 
@@ -28,7 +28,7 @@ const getSuggestedPosts = async (req, res) => {
     params.push(type);
   }
 
-  // Ưu tiên VIP + còn hạn > tin thường
+
   sql += `
     ORDER BY 
       CASE 
@@ -198,7 +198,7 @@ const createPost = async (req, res) => {
     connection = await db.getConnection();
     await connection.beginTransaction();
 
-    // 1. Kiểm tra đăng nhập + quyền
+ 
     if (!req.user?.id && !req.user?.user_id) {
       return res.status(401).json({ message: "Bạn cần đăng nhập!" });
     }
@@ -209,7 +209,7 @@ const createPost = async (req, res) => {
         .json({ message: "Chỉ chủ trọ mới được đăng tin!" });
     }
 
-    // 2. Validate dữ liệu
+
     const validationErrors = validatePostData(req.body);
     if (validationErrors.length > 0) {
       return res.status(400).json({
@@ -236,13 +236,13 @@ const createPost = async (req, res) => {
       longitude: clientLng,
     } = req.body;
 
-    // 3. Xác định tọa độ (ưu tiên client → fallback Goong.io)
+    // 3. Xác định tọa độ 
     let latitude = null;
     let longitude = null;
     let coordinateSource = "none";
     let coordinateAccuracy = "none";
 
-    // Ưu tiên 1: Tọa độ từ client (nếu hợp lệ)
+    // Ưu tiên 1: Tọa độ từ client
     if (clientLat && clientLng) {
       const lat = parseFloat(clientLat);
       const lng = parseFloat(clientLng);
@@ -262,7 +262,7 @@ const createPost = async (req, res) => {
       }
     }
 
-    // Ưu tiên 2: Dùng Goong.io nếu chưa có tọa độ
+ 
     if (!latitude || !longitude) {
       const geo = await getCoordinatesFromGoong(address, ward, district, city);
       if (geo) {
@@ -273,7 +273,7 @@ const createPost = async (req, res) => {
       }
     }
 
-    // 4. Tạo slug + hạn đăng
+    // Tạo slug + hạn đăng
     const slug =
       slugify(title.trim(), { lower: true, strict: true, locale: "vi" }) +
       "-" +
@@ -281,8 +281,8 @@ const createPost = async (req, res) => {
     const expired_at = new Date();
     expired_at.setDate(expired_at.getDate() + 3);
 
-    // 5. Insert bài đăng
-    // Thay đổi phần INSERT
+    // Insert bài đăng
+
     const [postResult] = await connection.execute(
       `INSERT INTO posts 
   (landlord_id, package_id, title, slug, description, contact_phone, contact_zalo,
@@ -378,7 +378,7 @@ const createPost = async (req, res) => {
     if (connection) connection.release();
   }
 };
-// 1. CẬP NHẬT GÓI DỊCH VỤ CHO BÀI ĐĂNG (gọi sau khi thanh toán thành công)
+// 1. CẬP NHẬT GÓI DỊCH VỤ CHO BÀI ĐĂNG 
 const assignPackageToPost = async (req, res) => {
   const { post_id, package_id } = req.body;
 
@@ -430,7 +430,7 @@ const assignPackageToPost = async (req, res) => {
   }
 };
 
-// 2. API lấy danh sách tin đăng của chủ trọ (dành cho trang quản lý tin của landlord)
+// 2. API lấy danh sách tin đăng của chủ trọ 
 const getMyPosts = async (req, res) => {
   const landlord_id = req.user.user_id || req.user.id;
 

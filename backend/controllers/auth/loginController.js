@@ -5,7 +5,7 @@ const jwt = require("jsonwebtoken");
 require("dotenv").config();
 
 const login = async (req, res) => {
-  // Cho phép đăng nhập bằng email, phone, hoặc phone_email (tương thích mọi frontend)
+  // Cho phép đăng nhập bằng email, phone, hoặc phone_email 
   const identifier = req.body.email || req.body.phone || req.body.phone_email;
   const password = req.body.password;
 
@@ -81,7 +81,7 @@ const login = async (req, res) => {
       );
     } catch (updateError) {
       console.error("Lỗi cập nhật last_active / last_login:", updateError);
-      // Không throw error để không chặn đăng nhập
+     
     }
     return res.status(200).json({
       status: "success",

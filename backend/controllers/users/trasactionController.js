@@ -23,7 +23,7 @@ const createTransaction = async (req, res) => {
     // 2. Tạo mã giao dịch duy nhất
     const transactionRef = `TROTROT_${Date.now()}_${userId}`;
 
-    // 3. Insert giao dịch (CHỈ tạo trạng thái pending)
+    // 3. Insert giao dịch
     const sql = `
       INSERT INTO transactions 
       (user_id, package_id, amount, payment_status, transaction_ref)

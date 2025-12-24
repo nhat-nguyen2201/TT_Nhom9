@@ -1,7 +1,7 @@
 // controllers/admin/adminPostController.js
 const pool = require("../../config/db");
 
-// Lấy tất cả bài đăng cho admin (hỗ trợ phân trang, tìm kiếm, lọc trạng thái + tên người đăng)
+// Lấy tất cả bài đăng cho admin 
 const getAllPosts = async (req, res) => {
   const { page = 1, limit = 10, search, status } = req.query;
   const offset = (page - 1) * limit;
@@ -66,7 +66,7 @@ const getAllPosts = async (req, res) => {
   }
 };
 
-// Lấy chi tiết 1 bài đăng (cũng JOIN để có tên người đăng)
+// Lấy chi tiết 1 bài đăng 
 const getPostById = async (req, res) => {
   const { id } = req.params;
   try {
@@ -91,7 +91,7 @@ const getPostById = async (req, res) => {
   }
 };
 
-// Cập nhật trạng thái (giữ nguyên - rất tốt)
+// Cập nhật trạng thái 
 const updatePostStatus = async (req, res) => {
   const { id } = req.params;
   const { status } = req.body;
@@ -132,7 +132,7 @@ const updatePostStatus = async (req, res) => {
   }
 };
 
-// Xóa bài đăng (giữ nguyên)
+// Xóa bài đăng
 const deletePost = async (req, res) => {
   const { id } = req.params;
   try {

@@ -137,7 +137,7 @@ console.log("REQ FILES:", req.files);
     connection = await db.getConnection();
     await connection.beginTransaction();
 
-    // 1. Kiểm tra quyền sở hữu tin
+    
     const [posts] = await connection.execute(
       `SELECT * FROM posts WHERE post_id = ? AND landlord_id = ?`,
       [id, userId]
@@ -149,7 +149,7 @@ console.log("REQ FILES:", req.files);
 
     const oldPost = posts[0];
 
-    // 2. Validate dữ liệu update
+
     const errors = validateUpdatePostData(req.body);
     if (errors.length) {
       return res.status(400).json({
@@ -175,7 +175,7 @@ console.log("REQ FILES:", req.files);
       longitude: clientLng,
     } = req.body;
 
-    // 3. Xác định tọa độ (chỉ khi địa chỉ thay đổi)
+ 
     let latitude = oldPost.latitude;
     let longitude = oldPost.longitude;
 
@@ -205,7 +205,7 @@ console.log("REQ FILES:", req.files);
       }
     }
 
-    // 4. Update bài đăng (fallback dữ liệu cũ)
+  
     await connection.execute(
       `UPDATE posts SET
         title = ?, description = ?, contact_phone = ?, contact_zalo = ?,
@@ -242,7 +242,7 @@ console.log("REQ FILES:", req.files);
       ]
     );
 
-    // 5. Cập nhật ảnh (nếu upload ảnh mới)
+
     if (req.files?.length) {
       const [oldImages] = await connection.execute(
         `SELECT image_url FROM post_images WHERE post_id = ?`,
@@ -268,7 +268,7 @@ console.log("REQ FILES:", req.files);
       }
     }
 
-    // 6. Cập nhật tiện ích
+ 
     if (req.body.amenities !== undefined) {
       await connection.execute(`DELETE FROM post_amenities WHERE post_id = ?`, [
         id,

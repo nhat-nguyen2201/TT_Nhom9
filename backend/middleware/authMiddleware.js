@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const db = require("../config/db"); // chỉnh path nếu cần
+const db = require("../config/db"); 
 
 const authMiddleware = async (req, res, next) => {
   try {
@@ -18,7 +18,7 @@ const authMiddleware = async (req, res, next) => {
       role: decoded.role || "renter",
     };
 
-    // ✅ UPDATE LAST ACTIVE
+
     await db.execute("UPDATE users SET last_active = NOW() WHERE user_id = ?", [
       decoded.user_id,
     ]);

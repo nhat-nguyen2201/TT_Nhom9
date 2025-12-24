@@ -52,11 +52,6 @@ const forgotPassword = async (req, res) => {
       user.full_name || "bạn"
     );
 
-    // In ra console để test nhanh
-    console.log("LINK ĐẶT LẠI MẬT KHẨU:");
-    console.log(resetLink);
-    console.log("".padStart(60, "-"));
-
     return res.json({
       status: "success",
       message: "Link đặt lại mật khẩu đã được gửi đến email của bạn!",

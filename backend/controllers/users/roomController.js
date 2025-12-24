@@ -6,12 +6,9 @@ const getRoomDetail = async (req, res) => {
 
   try {
     let room;
-    //let queryParams = [];
 
-    // Kiểm tra xem id có phải là số không → nếu có thì tìm theo post_id
-    // Nếu không phải số → tìm theo slug
     if (!isNaN(id) && !isNaN(parseInt(id))) {
-      // Là số → tìm theo post_id
+   
       [room] = await db.execute(
         `SELECT 
           p.post_id, p.landlord_id, p.package_id, p.title, p.slug, p.description,
@@ -26,7 +23,7 @@ const getRoomDetail = async (req, res) => {
         [id]
       );
     } else {
-      // Không phải số → tìm theo slug
+ 
       [room] = await db.execute(
         `SELECT 
           p.post_id, p.landlord_id, p.package_id, p.title, p.slug, p.description,

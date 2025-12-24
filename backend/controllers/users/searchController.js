@@ -30,33 +30,33 @@ class SearchController {
       const normDistrict = district.trim() && district !== "null" ? district.trim() : "";
       const normWard = ward.trim() && ward !== "null" ? ward.trim() : "";
 
-      // 1. Lọc CITY (nếu có)
+      // 1. Lọc CITY
       if (normCity) {
         conditions.push("TRIM(p.city) = ?");
         params.push(normCity);
       }
 
-      // 2. Lọc DISTRICT (nếu có)
+      // 2. Lọc DISTRICT
       if (normDistrict) {
         conditions.push("TRIM(p.district) LIKE ?");
         params.push(`%${normDistrict}%`);
       }
 
-      // 3. Lọc WARD (nếu có)
+      // 3. Lọc WARD 
       if (normWard) {
         conditions.push("TRIM(p.ward) LIKE ?");
         params.push(`%${normWard}%`);
       }
 
-      // 4. Lọc từ khóa - CÁCH MỚI: Tách từng từ và tìm linh hoạt
+      // 4. Lọc từ khóa
       if (normKeyword) {
         // Tách keyword thành các từ riêng lẻ
         const keywords = normKeyword
-          .split(/\s+/) // Tách theo khoảng trắng
-          .filter(word => word.length > 1); // Bỏ từ quá ngắn
+          .split(/\s+/) 
+          .filter(word => word.length > 1); 
 
         if (keywords.length > 0) {
-          // Tạo điều kiện: mỗi từ phải xuất hiện ở title HOẶC description HOẶC address
+          // Tạo điều kiện
           const keywordConditions = keywords.map(() => {
             return `(
               p.title LIKE ? OR 
@@ -169,7 +169,7 @@ class SearchController {
     }
   }
 
-  // Gợi ý tìm kiếm (autocomplete) - CẢI THIỆN
+  // Gợi ý tìm kiếm
   async getSuggestions(req, res) {
     try {
       const { q, city } = req.query;
@@ -185,7 +185,7 @@ class SearchController {
       const keywords = q.trim().split(/\s+/).filter(word => word.length > 1);
       
       if (keywords.length > 0) {
-        // Ưu tiên title có chứa TẤT CẢ các từ
+       
         const keywordConditions = keywords.map(() => 
           `(title LIKE ? OR address LIKE ? OR district LIKE ? OR ward LIKE ?)`
         );
@@ -198,7 +198,7 @@ class SearchController {
         });
       }
 
-      // Lọc theo city nếu có
+   
       if (city && city.trim()) {
         conditions.push("city = ?");
         params.push(city.trim());
@@ -290,10 +290,10 @@ class SearchController {
     }
   }
 
-  // Lấy danh sách options cho filter
+
   async getFilterOptions(req, res) {
     try {
-      // Lấy danh sách thành phố
+  
       const [cities] = await pool.query(`
         SELECT DISTINCT city
         FROM posts
@@ -301,7 +301,6 @@ class SearchController {
         ORDER BY city
       `);
 
-      // Lấy danh sách loại phòng
       const [roomTypes] = await pool.query(`
         SELECT DISTINCT room_type
         FROM posts
@@ -309,7 +308,7 @@ class SearchController {
         ORDER BY room_type
       `);
 
-      // Lấy danh sách quận/huyện theo thành phố (nếu cần)
+      // Lấy danh sách quận/huyện theo thành phố 
       const { city } = req.query;
       let districts = [];
       if (city && city.trim()) {
@@ -339,7 +338,7 @@ class SearchController {
     }
   }
 
-  // Tìm kiếm nhanh từ header (redirect đến trang search)
+  // Tìm kiếm nhanh từ header
   async quickSearch(req, res) {
     try {
       const { keyword, city } = req.query;

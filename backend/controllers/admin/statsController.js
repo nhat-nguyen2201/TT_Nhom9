@@ -7,7 +7,7 @@ const getStats = async (req, res) => {
     const [users] = await db.execute("SELECT COUNT(*) as count FROM users");
     const totalUsers = users[0].count;
 
-    // 2. Người dùng hoạt động (giả sử có cột last_active hoặc created_at gần đây)
+    // 2. Người dùng hoạt động 
     const [activeUsers] = await db.execute(`
       SELECT COUNT(*) AS count
       FROM users
@@ -17,24 +17,24 @@ const getStats = async (req, res) => {
     const [posts] = await db.execute("SELECT COUNT(*) as count FROM posts");
     const totalPosts = posts[0].count;
 
-    // 4. Bài đăng chờ duyệt (pending)
+    // 4. Bài đăng chờ duyệt 
     const [pendingPosts] = await db.execute(`
       SELECT COUNT(*) AS count
       FROM posts
       WHERE COALESCE(status, 'approved') = 'pending'
     `);
 
-    // 5. Doanh thu hôm nay (từ bảng transactions, giả sử có cột amount và created_at)
+    // 5. Doanh thu hôm nay
     const [todayRevenue] = await db.execute(
       "SELECT COALESCE(SUM(amount), 0) AS revenue FROM transactions WHERE DATE(completed_at) = CURDATE() AND payment_status = 'completed'"
     );
 
-    // 6. Các gói nổi bật / tổng gói (từ packages)
+    // 6. Các gói nổi bật / tổng gói 
     const [packages] = await db.execute(
       "SELECT COUNT(*) as count FROM packages"
     );
 
-    // 7. Hoạt động gần đây (lấy 5-10 bản ghi mới nhất từ posts hoặc transactions hoặc users)
+    // 7. Hoạt động gần đây 
     const [recentActivities] = await db.execute(
       `SELECT 'Tạo bài đăng' as action, u.full_name as user, p.title as target, p.created_at 
        FROM posts p 
@@ -49,11 +49,11 @@ const getStats = async (req, res) => {
       WHERE DATE(last_login) = CURDATE()
     `);
     const sessionsToday = sessionsTodayResult[0].count || 0;
-    // Format dữ liệu phù hợp frontend
+  
     res.json({
       activeUsers: activeUsers[0].count || 0,
       sessionsToday: Number(sessionsToday) || 0,
-      totalOrders: totalPosts, // hoặc đếm transactions
+      totalOrders: totalPosts, 
       todayRevenue: todayRevenue[0].revenue || 0,
       totalUsers: totalUsers,
       totalPosts: totalPosts,
@@ -65,7 +65,7 @@ const getStats = async (req, res) => {
         user: act.user,
         target: act.target,
         time: new Date(act.created_at).toLocaleString("vi-VN"),
-        type: "info", // hoặc logic để phân loại success/warning/danger
+        type: "info", 
       })),
     });
   } catch (err) {

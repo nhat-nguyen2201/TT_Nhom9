@@ -18,7 +18,7 @@ const authAdmin = async (req, res, next) => {
       
     );
 
-    // GÁN USER VÀO REQ – DÒNG NÀY BẮT BUỘC PHẢI CÓ!!!
+  
     req.user = decoded;
 
     // Kiểm tra role
@@ -26,7 +26,7 @@ const authAdmin = async (req, res, next) => {
       return res.status(403).json({ message: "Chỉ Admin mới được vào!" });
     }
 
-    // Cho đi tiếp
+
     next();
   } catch (error) {
     console.error("Lỗi authAdmin:", error.message);

@@ -17,7 +17,7 @@ const register = async (req, res) => {
   const finalPhone = phone?.toString().replace(/\s/g, "") || null;
   const userRole = role === "landlord" || role === "admin" ? role : "renter";
 
-  // === 1. VALIDATION CƠ BẢN ===
+  // === 1. VALIDATION  ===
   if (!finalFullName || finalFullName.length < 2) {
     return res.status(400).json({
       status: "error",
@@ -32,10 +32,10 @@ const register = async (req, res) => {
     });
   }
 
-  // === 2. VALIDATION SỐ ĐIỆN THOẠI (MỚI) ===
-  // Nếu người dùng có nhập SĐT thì mới kiểm tra
+  // === 2. VALIDATION SỐ ĐIỆN THOẠ (MỚI) ===
+
   if (finalPhone) {
-    // Regex: Bắt đầu bằng số 0, theo sau là 9 chữ số bất kỳ (tổng 10 số)
+
     const vnf_regex = /^0\d{9}$/;
 
     if (!vnf_regex.test(finalPhone)) {
@@ -48,7 +48,6 @@ const register = async (req, res) => {
   }
 
   // === 3. VALIDATION MẬT KHẨU (ĐÃ TỐI ƯU) ===
-  // Regex: Ít nhất 6 ký tự, 1 chữ hoa, 1 ký tự đặc biệt
   const passwordRegex = /^(?=.*[A-Z])(?=.*[\W_]).{6,}$/;
 
   if (!password || !passwordRegex.test(password)) {
@@ -67,7 +66,6 @@ const register = async (req, res) => {
   }
 
   try {
-    // Kiểm tra email đã tồn tại chưa
     const [existingEmail] = await db.execute(
       "SELECT user_id FROM users WHERE email = ?",
       [finalEmail]
@@ -80,7 +78,7 @@ const register = async (req, res) => {
       });
     }
 
-    // Kiểm tra trùng phone (nếu có)
+  
     if (finalPhone) {
       const [existingPhone] = await db.execute(
         "SELECT user_id FROM users WHERE phone = ?",
@@ -94,10 +92,10 @@ const register = async (req, res) => {
       }
     }
 
-    // Hash mật khẩu
+
     const password_hash = await bcrypt.hash(password, 10);
 
-    // Thêm người dùng mới
+
     const [result] = await db.execute(
       `INSERT INTO users 
           (full_name, email, phone, password_hash, role, created_at, updated_at) 
@@ -108,7 +106,7 @@ const register = async (req, res) => {
 
     const newUserId = result.insertId;
 
-    // Tạo token
+
     const token = jwt.sign(
       { user_id: newUserId, role: userRole, email: finalEmail },
       process.env.JWT_SECRET,
