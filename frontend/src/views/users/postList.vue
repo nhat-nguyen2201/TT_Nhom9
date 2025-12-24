@@ -181,14 +181,14 @@ const formatRoomType = (type) => {
 
 const formatPrice = (price) => {
   if (!price) return "0 đ";
-  // Format dạng rút gọn nếu cần: 2.5 triệu
+  
   if (price >= 1000000) {
     return (price / 1000000).toFixed(1).replace(".0", "") + " triệu";
   }
   return new Intl.NumberFormat("vi-VN").format(price) + " đ";
 };
 
-// Logic màu sắc badge dựa trên loại phòng (Để giống roomRecomment sinh động hơn)
+
 const getBadgeClass = (type) => {
   if (type === "phong_tro") return "bg-primary text-white";
   if (type === "chung_cu_mini") return "bg-success text-white";

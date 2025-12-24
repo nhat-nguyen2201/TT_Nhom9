@@ -1,7 +1,7 @@
-// middleware/authMiddleware.js
 const jwt = require("jsonwebtoken");
+const db = require("../config/db"); // chỉnh path nếu cần
 
-const authMiddleware = (req, res, next) => {
+const authMiddleware = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
@@ -13,15 +13,22 @@ const authMiddleware = (req, res, next) => {
 
     req.user = {
       id: decoded.user_id,
-      user_id: decoded.user_id,   
+      user_id: decoded.user_id,
       email: decoded.email,
       role: decoded.role || "renter",
     };
 
+    // ✅ UPDATE LAST ACTIVE
+    await db.execute("UPDATE users SET last_active = NOW() WHERE user_id = ?", [
+      decoded.user_id,
+    ]);
+
     next();
   } catch (error) {
     console.error("Lỗi auth:", error.message);
-    return res.status(401).json({ success: false, message: "Token không hợp lệ!" });
+    return res
+      .status(401)
+      .json({ success: false, message: "Token không hợp lệ!" });
   }
 };
 

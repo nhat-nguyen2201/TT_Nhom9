@@ -1,5 +1,4 @@
 // controllers/post/postController.js
-
 const db = require("../../config/db");
 const slugify = require("slugify");
 const { geocodeAddress } = require("../../utils/geoCode"); // Đã chuyển sang Goong.io
@@ -9,16 +8,17 @@ require("dotenv").config();
 
 // ================== GET SUGGESTED POSTS (giữ nguyên) ==================
 const getSuggestedPosts = async (req, res) => {
-  const { type } = req.query;
+  const { type, limit = 12 } = req.query;
 
   let sql = `
     SELECT 
-      p.post_id, p.title, p.description, p.price, p.contact_phone,
-      p.ward, p.district, p.city, p.room_type, p.is_vip,
+      p.post_id, p.title, p.slug, p.description, p.price, 
+      p.contact_phone, p.ward, p.district, p.city, p.room_type,
+      p.is_vip, p.expired_at,
       pi.image_url AS featured_image
     FROM posts p
     LEFT JOIN post_images pi ON p.post_id = pi.post_id AND pi.is_primary = 1
-    WHERE p.status IN ('active', 'pending')
+    WHERE p.status = 'active'
       AND (p.expired_at IS NULL OR p.expired_at > NOW())
   `;
 
@@ -28,42 +28,55 @@ const getSuggestedPosts = async (req, res) => {
     params.push(type);
   }
 
-  sql += ` ORDER BY p.is_vip DESC, p.created_at DESC LIMIT 12`;
+  // Ưu tiên VIP + còn hạn > tin thường
+  sql += `
+    ORDER BY 
+      CASE 
+        WHEN p.is_vip = 1 AND p.expired_at > NOW() THEN 0
+        ELSE 1
+      END ASC,
+      p.created_at DESC
+    LIMIT ?
+  `;
+  params.push(parseInt(limit));
 
   try {
     const [rows] = await db.execute(sql, params);
+
     const posts = rows.map((post) => {
       const address =
         [post.ward, post.district, post.city].filter(Boolean).join(", ") ||
         "TP. Hồ Chí Minh";
       const priceFormatted =
-        (post.price / 1000000).toFixed(1).replace(".0", "") + " triệu";
-      const maskedPhone = post.contact_phone?.slice(0, -3) + "***" || null;
+        post.price >= 1000000
+          ? (post.price / 1000000).toFixed(1).replace(".0", "") + " triệu"
+          : new Intl.NumberFormat("vi-VN").format(post.price) + "đ";
+
+      const maskedPhone = post.contact_phone
+        ? post.contact_phone.slice(0, -3) + "***"
+        : null;
       const imageUrl = post.featured_image
         ? `${process.env.BASE_URL}${post.featured_image}`
         : "https://via.placeholder.com/400x300.png?text=Chưa+có+ảnh";
 
-      let typeBadge = "Basic Plan";
-      if (post.is_vip) typeBadge = "VIP";
-      else if (post.room_type === "chung_cu_mini") typeBadge = "Premium";
-
       return {
         id: post.post_id,
         title: post.title,
+        slug: post.slug,
         description: post.description || "",
         address,
         contact_phone_masked: maskedPhone,
         price: priceFormatted,
-        type: typeBadge,
         room_type: post.room_type,
         image: imageUrl,
+        is_vip: !!post.is_vip && new Date(post.expired_at) > new Date(),
       };
     });
 
-    res.json(posts);
+    res.json({ success: true, data: posts });
   } catch (error) {
     console.error("Lỗi lấy suggested posts:", error);
-    res.status(500).json({ error: "Lỗi server" });
+    res.status(500).json({ success: false, message: "Lỗi server" });
   }
 };
 
@@ -269,12 +282,13 @@ const createPost = async (req, res) => {
     expired_at.setDate(expired_at.getDate() + 3);
 
     // 5. Insert bài đăng
+    // Thay đổi phần INSERT
     const [postResult] = await connection.execute(
       `INSERT INTO posts 
-      (landlord_id, package_id, title, slug, description, contact_phone, contact_zalo,
-       price, deposit, area, address, ward, district, city, latitude, longitude,
-       room_type, status, expired_at, created_at, updated_at)
-      VALUES (?, 1, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', ?, NOW(), NOW())`,
+  (landlord_id, package_id, title, slug, description, contact_phone, contact_zalo,
+   price, deposit, area, address, ward, district, city, latitude, longitude,
+   room_type, status, expired_at, is_vip, created_at, updated_at)
+  VALUES (?, NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', NULL, 0, NOW(), NOW())`,
       [
         landlord_id,
         title.trim(),
@@ -292,7 +306,6 @@ const createPost = async (req, res) => {
         latitude,
         longitude,
         room_type,
-        expired_at,
       ]
     );
 
@@ -365,6 +378,81 @@ const createPost = async (req, res) => {
     if (connection) connection.release();
   }
 };
+// 1. CẬP NHẬT GÓI DỊCH VỤ CHO BÀI ĐĂNG (gọi sau khi thanh toán thành công)
+const assignPackageToPost = async (req, res) => {
+  const { post_id, package_id } = req.body;
+
+  if (!post_id || !package_id) {
+    return res
+      .status(400)
+      .json({ success: false, message: "Thiếu post_id hoặc package_id" });
+  }
+
+  try {
+    // Lấy thông tin gói từ bảng packages
+    const [packages] = await db.execute(
+      "SELECT duration_days FROM packages WHERE package_id = ? AND is_highlight = 1",
+      [package_id]
+    );
+
+    if (packages.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Gói không tồn tại hoặc không phải gói nổi bật",
+      });
+    }
+
+    const durationDays = packages[0].duration_days;
+
+    // Tính ngày hết hạn mới
+    const expiredAt = new Date();
+    expiredAt.setDate(expiredAt.getDate() + durationDays);
+
+    // Cập nhật bài đăng
+    await db.execute(
+      `UPDATE posts 
+       SET package_id = ?, 
+           expired_at = ?, 
+           is_vip = 1,
+           updated_at = NOW()
+       WHERE post_id = ? AND status = 'active'`,
+      [package_id, expiredAt, post_id]
+    );
+
+    res.json({
+      success: true,
+      message: `Đã nâng cấp bài đăng lên gói VIP ${durationDays} ngày`,
+      expired_at: expiredAt.toISOString(),
+    });
+  } catch (error) {
+    console.error("Lỗi nâng cấp gói:", error);
+    res.status(500).json({ success: false, message: "Lỗi server" });
+  }
+};
+
+// 2. API lấy danh sách tin đăng của chủ trọ (dành cho trang quản lý tin của landlord)
+const getMyPosts = async (req, res) => {
+  const landlord_id = req.user.user_id || req.user.id;
+
+  try {
+    const [posts] = await db.execute(
+      `SELECT 
+         p.post_id, p.title, p.slug, p.price, p.area, p.room_type,
+         p.status, p.view_count, p.created_at, p.expired_at,
+         p.is_vip, p.package_id,
+         (SELECT image_url FROM post_images WHERE post_id = p.post_id AND is_primary = 1 LIMIT 1) AS featured_image
+       FROM posts p
+       WHERE p.landlord_id = ?
+       ORDER BY p.created_at DESC`,
+      [landlord_id]
+    );
+
+    res.json({ success: true, data: posts });
+  } catch (error) {
+    console.error("Lỗi lấy tin của tôi:", error);
+    res.status(500).json({ success: false, message: "Lỗi server" });
+  }
+};
 
 module.exports = {
   createPost,
@@ -372,4 +460,6 @@ module.exports = {
   validatePostData,
   getCoordinatesFromGoong,
   deleteUploadedImages,
+  assignPackageToPost,
+  getMyPosts,
 };

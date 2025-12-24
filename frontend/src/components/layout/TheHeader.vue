@@ -167,11 +167,10 @@
 <script setup>
 import { ref, onMounted, onUnmounted, nextTick } from "vue";
 import { useRouter } from "vue-router";
-import axios from "axios"; // Đảm bảo đã cài axios: npm install axios
+import axios from "axios"; 
 
 const router = useRouter();
 
-// === TÌM KIẾM + GỢI Ý ===
 const searchKeyword = ref("");
 const suggestions = ref([]);
 const showSuggestions = ref(false);
@@ -208,15 +207,19 @@ const selectSuggestion = (item) => {
 };
 
 const handleSearch = () => {
-  showSuggestions.value = false;
   const keyword = searchKeyword.value.trim();
-  const city = selectedCity.value;
+  const city = selectedCity.value?.trim();
 
-  if (!keyword && !city) return;
+  const isDistrict = /^(quận|huyện|thị xã)\s+/i.test(keyword);
 
   router.push({
     path: "/search",
-    query: { keyword, city },
+    query: {
+      keyword: !isDistrict ? keyword || undefined : undefined,
+      district: isDistrict ? keyword : undefined,
+      city: city || undefined,
+      page: 1,
+    },
   });
 };
 
@@ -232,7 +235,7 @@ const hideSuggestions = (e) => {
   }
 };
 
-const selectedCity = ref("TP Hồ Chí Minh");
+const selectedCity = ref();
 const selectedCityShort = ref("TP HCM");
 
 const selectCity = (city) => {

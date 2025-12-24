@@ -7,11 +7,10 @@ const AuthRegister = () => import("../views/auth/AuthRegister.vue");
 const AdminLayout = () => import("../views/admin/AdminLayout.vue");
 const SearchPage = () => import("../views/users/searchPage.vue");
 // Các trang admin
-const AdminDashboard = () => import("../views/admin/AdminDashboard.vue");
 const AdminUsers = () => import("../views/admin/UserManagement.vue");
 const AdminPosts = () => import("../views/admin/AdminPost.vue");
-
 const AdminStats = () => import("../views/admin/SystemStats.vue");
+const AdminPackages = () => import("../views/admin/PackageAdmin.vue");
 // Các trang người dùng
 const ForgotPassword = () => import("../views/auth/ForgotPassword.vue");
 const ResetPassword = () => import("../views/auth/ResetPassword.vue");
@@ -95,12 +94,7 @@ const routes = [
     component: AdminLayout,
     meta: { requiresAdmin: true },
     children: [
-      { path: "", redirect: "dashboard" },
-      {
-        path: "dashboard",
-        name: "AdminDashboard",
-        component: AdminDashboard,
-      },
+      { path: "", redirect: "users" },
       {
         path: "users",
         name: "AdminUsers",
@@ -116,6 +110,11 @@ const routes = [
         name: "AdminStats",
         component: AdminStats,
       },
+      {
+        path: "packages",
+        name: "AdminPackages",
+        component: AdminPackages,
+      }, 
     ],
   },
 

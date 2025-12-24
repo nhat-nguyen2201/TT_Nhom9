@@ -149,7 +149,7 @@ export default {
 
           setTimeout(() => {
             if (normalizedUser.role === "admin") {
-              this.router.replace("/admin/dashboard");
+              this.router.replace("/admin/users");
             } else {
               this.router.replace("/");
             }

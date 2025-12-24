@@ -161,13 +161,13 @@
                   {{ room.contact_phone }}
                 </a>
                 <a
-                  :href="`https://zalo.me/${
-                    room.contact_zalo || room.contact_phone
-                  }`"
+                  :href="zaloChatLink"
                   target="_blank"
                   class="btn btn-outline-success btn-md rounded-3 fw-bold py-2"
+                  v-if="room.contact_phone"
                 >
-                  <i class="bi bi-chat-dots-fill me-2"></i> Chat Zalo
+                  <i class="bi bi-chat-dots-fill me-2"></i>
+                  Chat Zalo
                 </a>
               </div>
             </div>
@@ -230,7 +230,7 @@ import { useRoute } from "vue-router";
 import axios from "axios";
 import goongjs from "@goongmaps/goong-js";
 import "@goongmaps/goong-js/dist/goong-js.css";
-
+import { computed } from "vue";
 const route = useRoute();
 const room = ref(null);
 const loading = ref(true);
@@ -337,6 +337,21 @@ onMounted(async () => {
     console.error("Lỗi chi tiết:", error);
     loading.value = false;
   }
+});
+const zaloChatLink = computed(() => {
+  if (!room.value?.contact_phone) return "#";
+
+  let phone = room.value.contact_zalo || room.value.contact_phone;
+
+  // Xóa ký tự không phải số
+  phone = phone.replace(/\D/g, "");
+
+  // Nếu bắt đầu bằng 0 → đổi sang 84
+  if (phone.startsWith("0")) {
+    phone = "84" + phone.slice(1);
+  }
+
+  return `https://zalo.me/${phone}`;
 });
 </script>
 

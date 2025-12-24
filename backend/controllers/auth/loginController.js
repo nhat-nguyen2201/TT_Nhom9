@@ -74,7 +74,15 @@ const login = async (req, res) => {
       is_active: user.is_active,
       email_verified: user.email_verified,
     };
-
+    try {
+      await db.execute(
+        "UPDATE users SET last_active = NOW(), last_login = NOW() WHERE user_id = ?",
+        [user.user_id]
+      );
+    } catch (updateError) {
+      console.error("Lỗi cập nhật last_active / last_login:", updateError);
+      // Không throw error để không chặn đăng nhập
+    }
     return res.status(200).json({
       status: "success",
       message: "Đăng nhập thành công!",

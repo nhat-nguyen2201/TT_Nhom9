@@ -3,35 +3,55 @@ const express = require("express");
 const router = express.Router();
 const adminAuth = require("../middleware/authAdmin");
 
-// Import controllers
+// Controllers
 const { getStats } = require("../controllers/admin/statsController");
 const {
   getUsers,
   blockUser,
   createUserByAdmin,
 } = require("../controllers/admin/userController");
+const {
+  createPackage,
+  getAllPackages,
+  getPackageById,
+  updatePackage,
+  deletePackage,
+  approveTransaction,
+  rejectTransaction,
+} = require("../controllers/admin/packageController");
 
-// Import từng hàm cụ thể từ adminPostController để dễ đọc và tránh lỗi
+const {
+  getPendingTransactions,
+} = require("../controllers/users/trasactionController");
+
 const {
   getAllPosts,
   getPostById,
-  // nếu có dùng full update
   updatePostStatus,
-  deletePost,
 } = require("../controllers/admin/adminPostController");
 
-// Thống kê dashboard
+// ===== DASHBOARD =====
 router.get("/stats", adminAuth, getStats);
 
-// Quản lý người dùng
+// ===== USERS =====
 router.get("/users", adminAuth, getUsers);
+router.post("/users", adminAuth, createUserByAdmin);
 router.patch("/users/:id/block", adminAuth, blockUser);
 
-// === QUẢN LÝ BÀI ĐĂNG ADMIN ===
-router.get("/posts", adminAuth, getAllPosts); // Danh sách + phân trang + tìm kiếm
-router.get("/posts/:id", adminAuth, getPostById); // Chi tiết bài
+// ===== POSTS =====
+router.get("/posts", adminAuth, getAllPosts);
+router.get("/posts/:id", adminAuth, getPostById);
+router.patch("/posts/:id/status", adminAuth, updatePostStatus);
 
-router.patch("/posts/:id/status", adminAuth, updatePostStatus); // Duyệt / Từ chối
-router.delete("/posts/:id", adminAuth, deletePost); // Xóa bài
-router.post("/users", adminAuth, createUserByAdmin);
+// ===== PACKAGES =====
+router.post("/packages", adminAuth, createPackage);
+router.get("/packages", adminAuth, getAllPackages);
+router.get("/packages/:id", adminAuth, getPackageById);
+router.put("/packages/:id", adminAuth, updatePackage);
+router.delete("/packages/:id", adminAuth, deletePackage);
+
+// ===== TRANSACTIONS =====
+router.get("/transactions/pending", adminAuth, getPendingTransactions);
+router.patch("/transactions/:id/approve", adminAuth, approveTransaction);
+router.patch("/transactions/:id/reject", adminAuth, rejectTransaction);
 module.exports = router;

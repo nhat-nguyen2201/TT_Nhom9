@@ -1,13 +1,21 @@
-// File: routes/searchRoutes.js  (phải đúng tên và vị trí này)
-
+// FILE: routes/searchRoutes.js
 const express = require("express");
 const router = express.Router();
-
 const searchController = require("../controllers/users/searchController");
 
-// BẮT BUỘC PHẢI CÓ DẤU / TRƯỚC search
+// Route tìm kiếm nâng cao
 router.get("/advanced", searchController.advancedSearch);
+
+// Route gợi ý tìm kiếm (autocomplete)
 router.get("/suggestions", searchController.getSuggestions);
-router.get("/stats", searchController.getPriceStats);
+
+// Route thống kê giá
+router.get("/stats/price", searchController.getPriceStats);
+
+// Route lấy filter options (cities, room_types, districts)
 router.get("/filters", searchController.getFilterOptions);
+
+// Route tìm kiếm nhanh (từ header)
+router.get("/quick", searchController.quickSearch);
+
 module.exports = router;
