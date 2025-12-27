@@ -52,6 +52,6 @@ jobs:
           
           # Restart server
           # LƯU Ý: Kiểm tra xem file chạy chính của bạn là index.js hay server.js nhé!
-          pm2 reload backend-api || pm2 start index.js --name "backend-api"
+          pm2 reload backend-api || pm2 start server.js --name "backend-api"
           
           echo "Deploy Thành Công!"
