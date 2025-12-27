@@ -8,6 +8,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -15,44 +16,56 @@ jobs:
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '20'
+        node-version: 20
 
-    # 1. Sửa đoạn này: cd client -> cd frontend
+    # ===== BUILD FRONTEND =====
     - name: Build Frontend
       run: |
+        set -e
+        echo "Node version:"
+        node -v
+
         cd frontend
-        rm -rf package-lock.json node_modules
+        rm -rf node_modules package-lock.json
         npm install
         npm run build
 
-    # 2. Sửa đoạn này: copy folder backend và frontend/dist
+        echo "Build result:"
+        ls -la dist
+
+    # ===== COPY FILES =====
     - name: Copy files to VPS
       uses: appleboy/scp-action@master
       with:
         host: ${{ secrets.VPS_HOST }}
         username: ${{ secrets.VPS_USER }}
         password: ${{ secrets.VPS_PASSWORD }}
-        # Copy folder backend và folder dist (kết quả build) của frontend
-        source: "backend/*,frontend/dist/*"
+        source: "backend,frontend/dist"
         target: "/var/www/my-website"
-        strip_components: 0
+        overwrite: true
 
-    # 3. Sửa đoạn này: Đường dẫn vào backend
-    - name: Install & Restart
+    # ===== INSTALL & RESTART BACKEND =====
+    - name: Install & Restart Backend
       uses: appleboy/ssh-action@master
       with:
         host: ${{ secrets.VPS_HOST }}
         username: ${{ secrets.VPS_USER }}
         password: ${{ secrets.VPS_PASSWORD }}
         script: |
-          # Vào đúng thư mục backend
+          set -e
+          echo "Current directory:"
+          pwd
+
           cd /var/www/my-website/backend
-          
-          # Cài thư viện
-          npm install --production
-          
-          # Restart server
-          # LƯU Ý: Kiểm tra xem file chạy chính của bạn là index.js hay server.js nhé!
-          pm2 reload backend-api || pm2 start server.js --name "backend-api"
-          
-          echo "Deploy Thành Công!"
+
+          echo "Files in backend:"
+          ls -la
+
+          echo "Install dependencies"
+          npm ci --omit=dev
+
+          echo "Restart PM2"
+          pm2 reload backend-api || pm2 start server.js --name backend-api
+
+          pm2 status
+          echo "DEPLOY SUCCESS"
