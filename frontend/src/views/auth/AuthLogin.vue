@@ -134,8 +134,7 @@ export default {
 
         if (res.data.status === "success" && res.data.token) {
           const { token, user } = res.data;
-
-          // ÉP role về chữ thường
+       
           const normalizedUser = {
             ...user,
             role: (user.role || "tenant").toString().trim().toLowerCase(),
