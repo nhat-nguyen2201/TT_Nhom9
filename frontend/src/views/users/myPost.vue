@@ -276,6 +276,8 @@ const statusText = (status) => {
       return status;
   }
 };
+const a = ;  // <-- Lỗi cú pháp
+  console.log("Code này sẽ gây lỗi");
 </script>
 
 <style scoped>
